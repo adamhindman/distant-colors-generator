@@ -159,10 +159,13 @@
                     </dd>
                     <dt>Min contrast</dt>
                     <dd>
-                        Minimum WCAG contrast ratio between each color and the
+                        Minimum <a href="https://www.w3.org/TR/WCAG21/#contrast-minimum" target="_blank">WCAG contrast ratio</a> between each color and the
                         text. Higher values exclude dark colors (for white text)
                         or light colors (for black text). Default is 4.5, the
-                        WCAG AA threshold.
+                        WCAG AA threshold. Only matters if you're placing text
+                        on top of the colors — for chart fills, lines, or dots
+                        with no text overlay, you can safely lower this or
+                        ignore it entirely.
                     </dd>
                     <dt>Strategy</dt>
                     <dd>
