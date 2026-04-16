@@ -1,8 +1,10 @@
 import './style.css';
 
+let rawHexCodes = [];
 let lastHexCodes = [];
 let lastTextColor = 'black';
 let layoutMode = 'grid';
+let sortMode = 'similarity';
 let textColorMode = 'white';
 let seedHistory = [];
 let currentSeed = null;
@@ -92,6 +94,7 @@ function saveState() {
     minContrast: document.getElementById('min-contrast').value,
     strategy:    document.getElementById('strategy').value,
     layoutMode,
+    sortMode,
     seedHistory,
   }));
 }
@@ -109,6 +112,10 @@ function restoreState() {
     layoutMode = state.layoutMode;
     document.getElementById('layout-grid-btn').classList.toggle('active', layoutMode === 'grid');
     document.getElementById('layout-bar-btn').classList.toggle('active', layoutMode === 'bar');
+  }
+  if (state.sortMode) {
+    sortMode = state.sortMode;
+    document.getElementById('sort-mode').value = sortMode;
   }
   if (Array.isArray(state.seedHistory)) {
     seedHistory = state.seedHistory.filter(e => e && typeof e === 'object');
@@ -156,6 +163,44 @@ function toOklab(r, g, b) {
 
 function oklabDist([L1, a1, b1], [L2, a2, b2]) {
   return Math.sqrt((L1 - L2) ** 2 + (a1 - a2) ** 2 + (b1 - b2) ** 2);
+}
+
+function hexToLab(hex) {
+  return toOklab(parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16));
+}
+
+function sortByLightness(hexCodes) {
+  return [...hexCodes].sort((a, b) => hexToLab(a)[0] - hexToLab(b)[0]);
+}
+
+function sortByHue(hexCodes) {
+  const hue = hex => { const [, a, b] = hexToLab(hex); return (Math.atan2(b, a) * 180 / Math.PI + 360) % 360; };
+  return [...hexCodes].sort((a, b) => hue(a) - hue(b));
+}
+
+function sortByChroma(hexCodes) {
+  const chroma = hex => { const [, a, b] = hexToLab(hex); return Math.sqrt(a ** 2 + b ** 2); };
+  return [...hexCodes].sort((a, b) => chroma(b) - chroma(a));
+}
+
+function shuffleCodes(hexCodes) {
+  const arr = [...hexCodes];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function applySortMode() {
+  switch (sortMode) {
+    case 'similarity': lastHexCodes = nearestNeighborOrder(rawHexCodes); break;
+    case 'lightness':  lastHexCodes = sortByLightness(rawHexCodes); break;
+    case 'hue':        lastHexCodes = sortByHue(rawHexCodes); break;
+    case 'chroma':     lastHexCodes = sortByChroma(rawHexCodes); break;
+    case 'shuffle':    lastHexCodes = shuffleCodes(rawHexCodes); break;
+    default:           lastHexCodes = [...rawHexCodes];
+  }
 }
 
 function nearestNeighborOrder(hexCodes) {
@@ -369,12 +414,17 @@ function renderSwatches() {
 function renderSeedHistory() {
   const container = document.getElementById('seed-history');
   container.innerHTML = '';
-  seedHistory.forEach(({ seed, color, textColor }, i) => {
+  seedHistory.forEach(({ seed, colors, color }) => {
     const a = document.createElement('a');
     a.className = 'seed-link';
-    a.textContent = seedToName(seed);
-    a.title = seed.toString(16).padStart(5, '0');
-    if (color) a.style.cssText = `background:${color};color:${textColor}`;
+    a.title = seedToName(seed);
+    const swatchColors = colors || (color ? [color] : []);
+    for (let i = 0; i < 10; i++) {
+      const div = document.createElement('div');
+      div.className = 'mini-swatch';
+      div.style.background = swatchColors[i] || '#181818';
+      a.appendChild(div);
+    }
     a.addEventListener('click', () => generate(seed));
     container.appendChild(a);
   });
@@ -405,7 +455,6 @@ function generate(forceSeed = null) {
     output.innerHTML = '<p class="empty-state">No valid colors found.</p>';
     copyAllBtn.disabled = true;
     document.getElementById('copy-svg-btn').disabled = true;
-    document.getElementById('sort-hue-btn').disabled = true;
     return;
   }
 
@@ -415,11 +464,12 @@ function generate(forceSeed = null) {
   const chromaBias = strategy === 4 ? 5 : 0;
   const chosen = greedySample(k, candidates, chromaBias, rng);
 
-  lastHexCodes = [];
+  rawHexCodes = [];
   for (const idx of chosen) {
     const [r, g, b] = candidates[idx];
-    lastHexCodes.push(toHex(r, g, b));
+    rawHexCodes.push(toHex(r, g, b));
   }
+  applySortMode();
 
   // When recalling a palette by seed, auto-pick the text color that
   // has better contrast against the first swatch, and update the UI.
@@ -431,7 +481,7 @@ function generate(forceSeed = null) {
     lastTextColor = textColor;
   }
 
-  const entry = { seed, color: lastHexCodes[0], textColor: lastTextColor };
+  const entry = { seed, colors: nearestNeighborOrder(rawHexCodes).slice(0, 10), textColor: lastTextColor };
   seedHistory = [entry, ...seedHistory.filter(e => e.seed !== seed)].slice(0, 10);
   renderSeedHistory();
 
@@ -443,7 +493,6 @@ function generate(forceSeed = null) {
 
   copyAllBtn.disabled = false;
   document.getElementById('copy-svg-btn').disabled = false;
-  document.getElementById('sort-hue-btn').disabled = false;
 }
 
 function copyHex(hex, el) {
@@ -503,6 +552,16 @@ document.getElementById('text-white-btn').addEventListener('click', () => { setT
 
 document.getElementById('generate-btn').addEventListener('click', () => generate());
 
+document.getElementById('copy-url-btn').addEventListener('click', e => {
+  const btn = e.currentTarget;
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+    setTimeout(() => {
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Share';
+    }, 1500);
+  });
+});
+
 document.addEventListener('keydown', e => {
   if ((e.key === 'Enter' || e.key === ' ') && e.target.tagName !== 'BUTTON') {
     e.preventDefault();
@@ -528,11 +587,6 @@ document.getElementById('copy-svg-btn').addEventListener('click', e => {
   });
 });
 
-document.getElementById('sort-hue-btn').addEventListener('click', () => {
-  lastHexCodes = nearestNeighborOrder(lastHexCodes);
-  renderSwatches();
-});
-
 document.getElementById('layout-grid-btn').addEventListener('click', () => {
   layoutMode = 'grid';
   document.getElementById('layout-grid-btn').classList.add('active');
@@ -546,6 +600,15 @@ document.getElementById('layout-bar-btn').addEventListener('click', () => {
   document.getElementById('layout-bar-btn').classList.add('active');
   document.getElementById('layout-grid-btn').classList.remove('active');
   if (lastHexCodes.length) renderSwatches();
+  saveState();
+});
+
+document.getElementById('sort-mode').addEventListener('change', e => {
+  sortMode = e.target.value;
+  if (rawHexCodes.length) {
+    applySortMode();
+    renderSwatches();
+  }
   saveState();
 });
 

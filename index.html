@@ -3,12 +3,39 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Max Color Distance Generator</title>
+        <title>Generate Visually Distinct Colors</title>
     </head>
     <body>
-        <button id="help-btn" aria-label="Help">?</button>
+        <div class="top-actions">
+            <button
+                id="copy-url-btn"
+                class="btn btn-secondary btn-icon"
+                title="Copy URL"
+            >
+                <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+                Share
+            </button>
+            <button id="help-btn" aria-label="Help">?</button>
+        </div>
 
-        <h1>Max Color Distance Generator</h1>
+        <div class="page-header">
+            <h1>Generate Visually Distinct Colors</h1>
+            <span class="subtitle"
+                >You know, for readable charts and stuff</span
+            >
+        </div>
 
         <div class="controls controls-main">
             <div class="field">
@@ -18,8 +45,12 @@
             <div class="field">
                 <label>Text</label>
                 <div class="layout-switcher">
-                    <button id="text-black-btn" class="layout-btn">Black</button>
-                    <button id="text-white-btn" class="layout-btn active">White</button>
+                    <button id="text-black-btn" class="layout-btn">
+                        Black
+                    </button>
+                    <button id="text-white-btn" class="layout-btn active">
+                        White
+                    </button>
                 </div>
             </div>
             <div class="field">
@@ -30,7 +61,7 @@
                     min="1"
                     max="21"
                     step="0.1"
-                    value="3.5"
+                    value="4.5"
                 />
             </div>
             <div class="field">
@@ -52,20 +83,53 @@
             </div>
 
             <aside class="sidebar">
-                <div class="view-controls">
-                    <div class="layout-switcher">
-                        <button id="layout-grid-btn" class="layout-btn active">Grid</button>
-                        <button id="layout-bar-btn" class="layout-btn">Bars</button>
+                <div class="sidebar-box">
+                    <div class="view-controls">
+                        <div class="layout-switcher">
+                            <button
+                                id="layout-grid-btn"
+                                class="layout-btn active"
+                            >
+                                Grid
+                            </button>
+                            <button id="layout-bar-btn" class="layout-btn">
+                                Bars
+                            </button>
+                        </div>
+                        <select id="sort-mode">
+                            <option value="similarity">Sort: similarity</option>
+                            <option value="lightness">
+                                Sort: lightness (dark → light)
+                            </option>
+                            <option value="hue">Sort: hue (0° → 360°)</option>
+                            <option value="chroma">
+                                Sort: chroma (vivid → muted)
+                            </option>
+                            <option value="shuffle">Shuffle</option>
+                        </select>
                     </div>
-                    <button id="sort-hue-btn" class="btn btn-secondary" disabled>Sort by similarity</button>
+                    <div class="output-actions">
+                        <button
+                            id="copy-all-btn"
+                            class="btn btn-secondary"
+                            disabled
+                        >
+                            Copy hex
+                        </button>
+                        <button
+                            id="copy-svg-btn"
+                            class="btn btn-secondary"
+                            disabled
+                        >
+                            Copy SVG
+                        </button>
+                    </div>
                 </div>
-                <div class="sidebar-history">
-                    <span class="history-label">Last 10 palettes</span>
-                    <span id="seed-history"></span>
-                </div>
-                <div class="output-actions">
-                    <button id="copy-all-btn" class="btn btn-secondary" disabled>Copy hex</button>
-                    <button id="copy-svg-btn" class="btn btn-secondary" disabled>Copy SVG</button>
+                <div class="sidebar-box">
+                    <div class="sidebar-history">
+                        <span class="history-label">Last 10 palettes</span>
+                        <span id="seed-history"></span>
+                    </div>
                 </div>
             </aside>
         </div>
@@ -73,34 +137,73 @@
         <div id="help-overlay" hidden>
             <div id="help-modal">
                 <button id="help-close" aria-label="Close">✕</button>
-                <h2>Max Color Distance Generator</h2>
-                <p>Generates palettes where colors are as visually distinct from each other as possible. Colors are sampled using farthest-point sampling in <a href="https://bottosson.github.io/posts/oklab/" target="_blank">OKLab space</a> — a perceptually uniform color model.</p>
+                <h2>Visually Distinct Colors</h2>
+                <p>
+                    Generates palettes where colors are as visually distinct
+                    from each other as possible. Colors are sampled using
+                    farthest-point sampling in
+                    <a
+                        href="https://bottosson.github.io/posts/oklab/"
+                        target="_blank"
+                        >OKLab space</a
+                    >
+                    — a perceptually uniform color model.
+                </p>
 
                 <h3>Controls</h3>
                 <dl>
                     <dt>Count</dt>
                     <dd>How many colors to generate.</dd>
                     <dt>Text</dt>
-                    <dd>Whether to overlay black or white text on each swatch. When recalling a saved palette, this is set automatically based on contrast.</dd>
+                    <dd>
+                        Whether to overlay black or white text on each swatch.
+                        When recalling a saved palette, this is set
+                        automatically based on contrast.
+                    </dd>
                     <dt>Min contrast</dt>
-                    <dd>Minimum WCAG contrast ratio between each color and the text. Higher values exclude dark colors (for white text) or light colors (for black text). 4.5 is the WCAG AA threshold.</dd>
+                    <dd>
+                        Minimum WCAG contrast ratio between each color and the
+                        text. Higher values exclude dark colors (for white text)
+                        or light colors (for black text). Default is 4.5, the
+                        WCAG AA threshold.
+                    </dd>
                     <dt>Strategy</dt>
-                    <dd>How the candidate color pool is built before sampling. HSL sampling and OKLCH sampling tend to produce more vivid palettes. Chroma-biased selection nudges the greedy sampler toward saturated colors.</dd>
+                    <dd>
+                        How the candidate color pool is built before sampling.
+                        HSL sampling and OKLCH sampling tend to produce more
+                        vivid palettes. Chroma-biased selection nudges the
+                        greedy sampler toward saturated colors.
+                    </dd>
                 </dl>
 
                 <h3>Generating</h3>
-                <p>Click <strong>Generate</strong>, or press <kbd>Space</kbd> or <kbd>Enter</kbd>. Each palette gets a unique name (like <code>happy-blazing-lobster</code>) reflected in the URL — paste it to recreate the palette exactly.</p>
+                <p>
+                    Click <strong>Generate</strong>, or press
+                    <kbd>Space</kbd> or <kbd>Enter</kbd>. Each palette gets a
+                    unique name (like <code>happy-blazing-lobster</code>)
+                    reflected in the URL — paste it to recreate the palette
+                    exactly.
+                </p>
 
                 <h3>Sidebar</h3>
                 <dl>
                     <dt>Grid / Bars</dt>
-                    <dd>Switch between a square grid and a compact bar layout.</dd>
-                    <dt>Sort by similarity</dt>
-                    <dd>Reorders colors so the most perceptually similar ones are adjacent. Useful for spotting pairs that are too close.</dd>
+                    <dd>
+                        Switch between a square grid and a compact bar layout.
+                    </dd>
+                    <dt>Sort</dt>
+                    <dd>
+                        Reorder colors by similarity (nearest-neighbor),
+                        lightness, hue, chroma, or a random shuffle. Sorting is
+                        applied when copying and exporting too.
+                    </dd>
                     <dt>Last 10 palettes</dt>
                     <dd>Click any entry to restore that palette.</dd>
                     <dt>Copy hex / Copy SVG</dt>
-                    <dd>Copy hex codes (one per line) or an SVG of the current swatches to the clipboard.</dd>
+                    <dd>
+                        Copy hex codes (one per line) or an SVG of the current
+                        swatches to the clipboard.
+                    </dd>
                 </dl>
             </div>
         </div>
