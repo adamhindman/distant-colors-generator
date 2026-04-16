@@ -3,7 +3,7 @@ import './style.css';
 let lastHexCodes = [];
 let lastTextColor = 'black';
 let layoutMode = 'grid';
-let textColorMode = 'black';
+let textColorMode = 'white';
 let seedHistory = [];
 let currentSeed = null;
 
