@@ -425,12 +425,12 @@ function renderSeedHistory() {
       div.style.background = swatchColors[i] || '#181818';
       a.appendChild(div);
     }
-    a.addEventListener('click', () => generate(seed));
+    a.addEventListener('click', () => generate(seed, true));
     container.appendChild(a);
   });
 }
 
-function generate(forceSeed = null) {
+function generate(forceSeed = null, skipHistory = false) {
   const n           = Math.max(1, +document.getElementById('count').value || 8);
   const minContrast = Math.max(1, Math.min(21, +document.getElementById('min-contrast').value || 4.5));
   const textColor   = textColorMode;
@@ -481,8 +481,10 @@ function generate(forceSeed = null) {
     lastTextColor = textColor;
   }
 
-  const entry = { seed, colors: nearestNeighborOrder(rawHexCodes).slice(0, 10), textColor: lastTextColor };
-  seedHistory = [entry, ...seedHistory.filter(e => e.seed !== seed)].slice(0, 10);
+  if (!skipHistory) {
+    const entry = { seed, colors: nearestNeighborOrder(rawHexCodes).slice(0, 10), textColor: lastTextColor };
+    seedHistory = [entry, ...seedHistory.filter(e => e.seed !== seed)].slice(0, 10);
+  }
   renderSeedHistory();
 
   currentSeed = seed;
