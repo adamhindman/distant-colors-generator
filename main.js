@@ -492,6 +492,12 @@ function buildSvg(hexCodes, textColor, layout) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">\n  ${groups}\n</svg>`;
 }
 
+const helpOverlay = document.getElementById('help-overlay');
+document.getElementById('help-btn').addEventListener('click', () => helpOverlay.hidden = false);
+document.getElementById('help-close').addEventListener('click', () => helpOverlay.hidden = true);
+helpOverlay.addEventListener('click', e => { if (e.target === helpOverlay) helpOverlay.hidden = true; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') helpOverlay.hidden = true; });
+
 document.getElementById('text-black-btn').addEventListener('click', () => { setTextColorMode('black'); saveState(); });
 document.getElementById('text-white-btn').addEventListener('click', () => { setTextColorMode('white'); saveState(); });
 

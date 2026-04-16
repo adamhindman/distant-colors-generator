@@ -20,6 +20,140 @@ h1 {
   color: #e0e0e0;
 }
 
+/* ── Help button ─────────────────────────────────────────────────────────────*/
+
+#help-btn {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  border: 1px solid #2e2e2e;
+  background: transparent;
+  color: #555;
+  font-size: 0.85rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: border-color 0.15s, color 0.15s;
+  z-index: 10;
+}
+
+#help-btn:hover {
+  border-color: #555;
+  color: #c8c8c8;
+}
+
+/* ── Help modal ──────────────────────────────────────────────────────────────*/
+
+#help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+#help-overlay[hidden] {
+  display: none;
+}
+
+#help-modal {
+  position: relative;
+  background: #1c1c1c;
+  border: 1px solid #2e2e2e;
+  border-radius: 10px;
+  padding: 2rem;
+  max-width: 520px;
+  width: calc(100% - 3rem);
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+
+#help-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: #555;
+  font-size: 1rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.25rem;
+}
+
+#help-close:hover {
+  color: #c8c8c8;
+}
+
+#help-modal h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin-bottom: 0.6rem;
+}
+
+#help-modal h3 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #555;
+  margin: 1.5rem 0 0.6rem;
+}
+
+#help-modal p {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #999;
+}
+
+#help-modal a {
+  color: #c8c8c8;
+}
+
+#help-modal dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.3rem 1rem;
+  font-size: 0.875rem;
+}
+
+#help-modal dt {
+  color: #c8c8c8;
+  font-weight: 500;
+  white-space: nowrap;
+  padding-top: 0.1rem;
+}
+
+#help-modal dd {
+  color: #888;
+  line-height: 1.5;
+}
+
+#help-modal kbd {
+  font-family: inherit;
+  font-size: 0.8rem;
+  background: #252525;
+  border: 1px solid #3a3a3a;
+  border-radius: 3px;
+  padding: 0 4px;
+  color: #c8c8c8;
+}
+
+#help-modal code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.8rem;
+  color: #c8c8c8;
+  background: #252525;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
 .controls {
   display: flex;
   align-items: center;

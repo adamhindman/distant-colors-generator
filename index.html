@@ -6,6 +6,8 @@
         <title>Max Color Distance Generator</title>
     </head>
     <body>
+        <button id="help-btn" aria-label="Help">?</button>
+
         <h1>Max Color Distance Generator</h1>
 
         <div class="controls controls-main">
@@ -66,6 +68,41 @@
                     <button id="copy-svg-btn" class="btn btn-secondary" disabled>Copy SVG</button>
                 </div>
             </aside>
+        </div>
+
+        <div id="help-overlay" hidden>
+            <div id="help-modal">
+                <button id="help-close" aria-label="Close">✕</button>
+                <h2>Max Color Distance Generator</h2>
+                <p>Generates palettes where colors are as visually distinct from each other as possible. Colors are sampled using farthest-point sampling in <a href="https://bottosson.github.io/posts/oklab/" target="_blank">OKLab space</a> — a perceptually uniform color model.</p>
+
+                <h3>Controls</h3>
+                <dl>
+                    <dt>Count</dt>
+                    <dd>How many colors to generate.</dd>
+                    <dt>Text</dt>
+                    <dd>Whether to overlay black or white text on each swatch. When recalling a saved palette, this is set automatically based on contrast.</dd>
+                    <dt>Min contrast</dt>
+                    <dd>Minimum WCAG contrast ratio between each color and the text. Higher values exclude dark colors (for white text) or light colors (for black text). 4.5 is the WCAG AA threshold.</dd>
+                    <dt>Strategy</dt>
+                    <dd>How the candidate color pool is built before sampling. HSL sampling and OKLCH sampling tend to produce more vivid palettes. Chroma-biased selection nudges the greedy sampler toward saturated colors.</dd>
+                </dl>
+
+                <h3>Generating</h3>
+                <p>Click <strong>Generate</strong>, or press <kbd>Space</kbd> or <kbd>Enter</kbd>. Each palette gets a unique name (like <code>happy-blazing-lobster</code>) reflected in the URL — paste it to recreate the palette exactly.</p>
+
+                <h3>Sidebar</h3>
+                <dl>
+                    <dt>Grid / Bars</dt>
+                    <dd>Switch between a square grid and a compact bar layout.</dd>
+                    <dt>Sort by similarity</dt>
+                    <dd>Reorders colors so the most perceptually similar ones are adjacent. Useful for spotting pairs that are too close.</dd>
+                    <dt>Last 10 palettes</dt>
+                    <dd>Click any entry to restore that palette.</dd>
+                    <dt>Copy hex / Copy SVG</dt>
+                    <dd>Copy hex codes (one per line) or an SVG of the current swatches to the clipboard.</dd>
+                </dl>
+            </div>
         </div>
 
         <script type="module" src="./main.js"></script>
